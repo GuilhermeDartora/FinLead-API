@@ -1,6 +1,6 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 from services.authService import AuthService
-
+from utils.response import success, error
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -16,22 +16,24 @@ def register():
     try:
         user = AuthService.register(nome, email, senha, role)
 
-        return jsonify({
-            "message": "Usuário criado com sucesso",
-            "user": {
+        return success(
+            "Usuário criado com sucesso",
+            {
                 "id": user.id,
                 "nome": user.nome,
                 "email": user.email,
                 "role": user.role
-            }
-        }), 201
+            },
+            201
+        )
 
     except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        return error(str(e), 400)
 
     except Exception:
-        return jsonify({"error": "Erro interno do servidor"}), 500
-    
+        return error("Erro interno do servidor", 500)
+
+
 @auth_bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -42,16 +44,18 @@ def login():
     try:
         user = AuthService.login(email, senha)
 
-        return jsonify({
-            "message": "Login bem-sucedido",
-            "user": {
+        return success(
+            "Login realizado com sucesso",
+            {
                 "id": user.id,
                 "nome": user.nome,
                 "email": user.email,
-                "role": user.role   
+                "role": user.role
             }
-        }), 200
+        )
+
     except ValueError as e:
-        return jsonify({"error": str(e)}), 401
+        return error(str(e), 401)
+
     except Exception:
-        return jsonify({"error": "Erro interno do servidor"}), 500
+        return error("Erro interno do servidor", 500)
